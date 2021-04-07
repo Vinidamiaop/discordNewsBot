@@ -16,22 +16,18 @@ async function puxaDados() {
 }
 
 // função para enviar os dados para o canal
-async function sendNews(token, config, client) {
-  const discordChannel = client.channels.cache.find(
-    (channel) => channel.name === clientConfig.channel
-  );
-
+async function sendNews(token, config) {
   const data = await puxaDados(token).then((res) => res);
 
   if (!data) {
-    discordChannel.send(`erro`);
+    console.error("Something went wrong");
     return;
   }
 
   if (data.status === "ok") {
     if (data.articles[0].title != config.oldTitle) {
       config.oldTitle = data.articles[0].title;
-      discordChannel.send(`${data.articles[0].url}}`);
+      return data.articles[0].url;
     } else {
       return;
     }
