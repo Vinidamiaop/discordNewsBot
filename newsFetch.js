@@ -1,15 +1,12 @@
 const { config, clientConfig } = require("./config.js");
-const dotenv = require("dotenv").config();
 const fetch = require("node-fetch");
 
-const TOKEN = process.env.TOKEN;
-const newsToken = process.env.newsToken;
-const url = `https://newapi.org/v2/top-headlines?country=${config.country}&category=${config.category}&apiKey=${newsToken}`;
+const url = `https://newsapi.org/v2/top-headlines?country=${config.country}&category=${config.category}&apiKey=${clientConfig.newsToken}`;
 
 // Função para pegar os dados da api
-async function puxaDados(token) {
+async function puxaDados() {
   try {
-    const response = await fetch(`${url}`);
+    const response = await fetch(url);
     const res = await response.json();
     return res;
   } catch (err) {
@@ -41,4 +38,4 @@ async function sendNews(token, config, client) {
   }
 }
 
-module.exports = { sendNews, TOKEN, newsToken };
+module.exports = sendNews;
