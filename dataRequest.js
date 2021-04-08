@@ -62,7 +62,7 @@ class DataRequest {
           .setColor(0xef271b)
           .setDescription(res.description)
           .setImage(res.urlToImage)
-          .setFooter(`${res.author} | ${res.source.name}`);
+          .setFooter(res.source.name);
         channel.send(embed);
       } else {
         console.log(`${currentTime()} | Nothing New`);
