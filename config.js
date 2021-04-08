@@ -11,10 +11,11 @@ const clientConfig = {
   TOKEN: process.env.TOKEN,
   newsToken: process.env.newsToken,
   sources: [
+    "Globo",
+    "Exame.com",
     "Canaltech.com.br",
     "Cnnbrasil.com.br",
     "Tecmundo.com.br",
-    "Globo",
     "Tecnoblog.net",
   ],
 };
