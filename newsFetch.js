@@ -1,37 +1,46 @@
 const { config, clientConfig } = require("./config.js");
 const fetch = require("node-fetch");
+const fs = require("fs");
 
 const url = `https://newsapi.org/v2/top-headlines?country=${config.country}&category=${config.category}&apiKey=${clientConfig.newsToken}`;
 
-// Função para pegar os dados da api
-async function puxaDados() {
+// Gets data from api
+async function getData() {
   try {
     const response = await fetch(url);
     const res = await response.json();
-    return res;
+    if (res.status === "ok") {
+      let article;
+      clientConfig.sources.forEach((item) => {
+        article = res.articles.filter((el) => {
+          return el.source.name === item;
+        });
+      });
+
+      return article;
+    }
   } catch (err) {
     console.error("Something went wrong.", err);
     return false;
   }
 }
 
-// função para enviar os dados para o canal
-async function sendNews(token, config) {
-  const data = await puxaDados(token).then((res) => res);
+// Verify if its new
+async function sendNews() {
+  const data = await getData().then((res) => res);
+  let article;
 
   if (!data) {
     console.error("Something went wrong");
     return;
   }
-
-  if (data.status === "ok") {
-    if (data.articles[0].title != config.oldTitle) {
-      config.oldTitle = data.articles[0].title;
-      return data.articles[0].url;
-    } else {
-      return;
+  data.forEach((item) => {
+    if (Date.parse(item.publishedAt) > config.lastTime) {
+      config.lastTime = Date.parse(item.publishedAt);
+      article = item;
     }
-  }
+  });
+  return article;
 }
 
 module.exports = sendNews;

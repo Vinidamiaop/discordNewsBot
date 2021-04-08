@@ -1,5 +1,5 @@
 const { config, clientConfig } = require("./config.js");
-const sendNews = require("./newsFetch.js");
+const sendNews2 = require("./newsFetch.js");
 const Discord = require("discord.js");
 const currentTime = require("./date.js");
 
@@ -14,9 +14,16 @@ client.once("ready", () => {
   console.log("Ready");
 
   setInterval(() => {
-    sendNews(clientConfig.newsToken, config).then((res) => {
+    sendNews2().then((res) => {
       if (res) {
-        discordChannel.send(res);
+        // discordChannel.send(res);
+        const embed = new Discord.MessageEmbed()
+          .setTitle(res.title)
+          .setURL(res.url)
+          .setColor(0xef271b)
+          .setDescription(res.description)
+          .setImage(res.urlToImage);
+        discordChannel.send(embed);
       } else {
         console.log(`${currentTime()} | Nothing New`);
       }
