@@ -3,6 +3,7 @@ const DataRequest = require("./dataRequest.js");
 const Discord = require("discord.js");
 
 const dataRequest = new DataRequest();
+dataRequest.init();
 const client = new Discord.Client();
 
 client.login(clientConfig.TOKEN);

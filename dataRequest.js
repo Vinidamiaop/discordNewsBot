@@ -1,7 +1,9 @@
 const { config, clientConfig } = require("./config.js");
+const dbQuery = require("./database.js");
 const { MessageEmbed } = require("discord.js");
 const fetch = require("node-fetch");
-const currentTime = require("./date.js");
+
+const db = new dbQuery();
 
 class DataRequest {
   constructor() {
@@ -13,9 +15,7 @@ class DataRequest {
     try {
       const response = await fetch(this.url);
       const res = await response.json();
-      if (res.status === "ok") {
-        return this.compareSources(res);
-      }
+      return this.compareSources(res);
     } catch (err) {
       console.error("Something went wrong.", err);
       return false;
@@ -34,22 +34,32 @@ class DataRequest {
     return article;
   }
 
+  async insertDb() {
+    const data = await this.getData().then((res) => res);
+    console.log("inserting new data");
+
+    for (let item of data) {
+      let obj = {
+        source: item.source.name,
+        title: item.title,
+        description: item.description,
+        url: item.url,
+        urltoimage: item.urlToImage,
+        publishedat: item.publishedAt,
+        shared: false,
+      };
+      try {
+        db.insertValues(obj);
+      } catch (err) {
+        throw err;
+      }
+    }
+  }
+
   // Verify if its new
   async sendNews() {
-    const data = await this.getData().then((res) => res);
-    let article;
-
-    if (!data) {
-      console.error("Something went wrong");
-      return;
-    }
-    data.forEach((item) => {
-      if (Date.parse(item.publishedAt) > config.lastTime) {
-        config.lastTime = Date.parse(item.publishedAt);
-        article = item;
-      }
-    });
-    return article;
+    const data = await db.getUnsharedNews().then((res) => res);
+    return data[data.length - 1];
   }
 
   // Embed and send the message to channel
@@ -61,14 +71,30 @@ class DataRequest {
           .setURL(res.url)
           .setColor(0xef271b)
           .setDescription(res.description)
-          .setImage(res.urlToImage)
-          .setFooter(res.source.name);
+          .setImage(res.urltoimage)
+          .setFooter(res.source);
         channel.send(embed);
+        db.updateShared(res.id, true);
       } else {
-        console.log(`${currentTime()} | Nothing New`);
+        console.log(
+          `${new Date().toLocaleDateString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })} | Nothing New`
+        );
       }
     });
   }
+
+  init() {
+    this.insertDb();
+    setInterval(() => {
+      this.insertDb();
+    }, 1000 * 60 * 60);
+  }
 }
+
+const test = new DataRequest();
+test.sendNews().then((res) => console.log(res.source));
 
 module.exports = DataRequest;
