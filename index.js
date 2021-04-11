@@ -1,4 +1,4 @@
-const { config, clientConfig } = require("./config.js");
+const { clientConfig } = require("./config.js");
 const DataRequest = require("./dataRequest.js");
 const Discord = require("discord.js");
 

@@ -1,7 +1,6 @@
 const dotenv = require("dotenv").config();
 
 const config = {
-  lastTime: 0,
   category: "technology",
   country: "br",
 };

@@ -29,11 +29,9 @@ db.on("error", (err) => {
 });
 
 class dbQuery {
-  constructor() {
-    this.db = db;
-  }
   async insertValues(...[obj]) {
-    const permission = await this.verifyDuplicates(obj).then((res) => res);
+    const permission = await this.verifyDuplicates(obj);
+
     if (permission) {
       new Promise((resolve, reject) => {
         const sql = `INSERT INTO newsbot.news (source, title, description, url, urltoimage, publishedat, shared)
@@ -52,7 +50,7 @@ class dbQuery {
   }
 
   verifyDuplicates(...[obj]) {
-    const pro = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const sql = `SELECT * from newsbot.news WHERE title = (?)`;
       db.query(sql, obj.title, (err, result) => {
         if (err) reject(err);
@@ -63,16 +61,15 @@ class dbQuery {
         }
       });
     });
-    return pro;
   }
   updateShared(id, bool) {
     const sql = `UPDATE newsbot.news set shared = (?) WHERE id = (?)`;
     const options = [bool, id];
-    db.query(sql, options, () => db.end);
+    db.query(sql, options);
   }
 
   getUnsharedNews() {
-    let pro = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const sql = `SELECT id, publishedat, source, title, description, url, urltoimage 
       from newsbot.news where publishedat = (select MIN(publishedat) from newsbot.news WHERE shared = (?)) and shared = (?) `;
       const options = [false, false];
@@ -81,7 +78,6 @@ class dbQuery {
         resolve(result);
       });
     });
-    return pro;
   }
 }
 
