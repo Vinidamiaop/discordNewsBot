@@ -38,11 +38,7 @@ class dbQuery {
       VALUES (?, ?, ?, ?, ?, ?, ?);`;
 
         db.query(sql, Object.values(obj), (err, result) => {
-          if (err) {
-            reject(err);
-            // throw err
-            return;
-          }
+          if (err) reject(err);
           resolve(result);
         });
       });
@@ -74,7 +70,7 @@ class dbQuery {
       from newsbot.news where publishedat = (select MIN(publishedat) from newsbot.news WHERE shared = (?)) and shared = (?) `;
       const options = [false, false];
       db.query(sql, options, (err, result) => {
-        if (err) throw err;
+        if (err) reject(err);
         resolve(result);
       });
     });
